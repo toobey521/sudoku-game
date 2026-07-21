@@ -95,7 +95,8 @@ body{
 }
 .board{
   width:100%;height:100%;
-  display:grid;gap:1px;background:#d1d5db;border-radius:10px;overflow:hidden;
+  display:grid;gap:2px;background:#d1d5db;border-radius:10px;overflow:hidden;
+  border:2.5px solid #374151;
 }
 .cell{
   background:#fff;display:flex;align-items:center;justify-content:center;
@@ -784,7 +785,9 @@ document.addEventListener('keydown',e=>{
 });
 
 // ===== START =====
-showPage(homePage);
+// Default: open first level directly
+startLevel(0);
+showPage(gamePage);
 // Auto-start background music
 setTimeout(()=>{
   MusicEngine.init();
