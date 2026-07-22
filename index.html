@@ -193,12 +193,47 @@ body{
 .modal-box .btn-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 /* ===== Responsive ===== */
-@media(max-width:400px){
-  .card{padding:16px 12px 20px;border-radius:20px}
+@media(max-width:480px){
+  body{padding:6px}
+  .card{padding:12px 10px 16px;border-radius:18px;max-width:100%}
+  #homePage{left:0;padding:10px 10px 40px}
+  #homePage .home-header h1{font-size:22px}
+  #homePage .level-btn{padding:6px 4px;border-radius:10px}
+  #homePage .level-grid{gap:5px}
   .home-header h1{font-size:26px}
-  .level-btn{padding:14px 6px}
-  .action-btn{padding:8px 14px;font-size:12px}
-  .game-top .title-area h2{font-size:17px}
+  .level-btn{padding:10px 6px;border-radius:12px}
+  .level-btn .num{font-size:18px}
+  .level-btn .grid-info{font-size:9px}
+  .anti-addiction{padding:6px 10px;font-size:12px;margin-bottom:8px;border-radius:10px}
+  .badge-row{gap:4px}
+  .badge{font-size:10px;padding:2px 7px}
+  .home-footer{font-size:10px}
+  /* Game page */
+  .board-wrap{max-width:100% !important}
+  .game-top{margin-bottom:10px}
+  .game-top .title-area h2{font-size:16px}
+  .game-top .back-btn{font-size:18px;padding:2px 6px}
+  .game-top .right-group{gap:6px}
+  .timer{font-size:13px}
+  .music-btn{font-size:16px}
+  /* Numpad */
+  .numpad{gap:4px}
+  .num-btn{border-radius:10px;font-size:clamp(14px,4.5vw,18px)}
+  .num-btn.erase{font-size:12px}
+  .numpad{grid-template-columns:repeat(5,1fr) !important}
+  /* Action bar - 5 buttons wrap in 2 rows */
+  .action-bar{gap:4px}
+  .action-btn{padding:7px 6px;font-size:11px;min-width:0;white-space:nowrap}
+}
+@media(max-width:360px){
+  .card{padding:8px 6px 12px;border-radius:14px}
+  #homePage{padding:8px 6px 30px}
+  .level-btn{padding:6px 3px}
+  .level-btn .num{font-size:15px}
+  .action-btn{padding:5px 4px;font-size:10px}
+  .numpad{gap:3px}
+  .num-btn{border-radius:8px}
+  .board-wrap{margin-bottom:8px}
 }
 </style>
 </head>
