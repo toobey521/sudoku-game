@@ -570,6 +570,14 @@ function buildBoard(n, boxRows, boxCols){
       }
     }
   }
+  // Last column: remove right border so it doesn't stack with board border
+  for(let r=1;r<=n;r++){
+    css += `.cell:nth-child(${r*n}){border-right:none}\n`;
+  }
+  // Last row: remove bottom border so it doesn't stack with board border
+  for(let c=1;c<=n;c++){
+    css += `.cell:nth-child(${(n-1)*n+c}){border-bottom:none}\n`;
+  }
   const style = document.createElement('style');
   style.id='boardBorderStyle';
   style.textContent=css;
