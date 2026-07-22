@@ -33,6 +33,17 @@ body{
 @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
 
 /* ===== Home Page ===== */
+#homePage{
+  padding:12px 20px 134px;
+  position:relative;left:-1cm;
+}
+#homePage .home-header{margin-bottom:2px}
+#homePage .home-header h1{font-size:24px}
+#homePage .anti-addiction{margin-bottom:6px;padding:4px 14px}
+#homePage .badge-row{margin-bottom:4px}
+#homePage .level-grid{gap:6px;margin-bottom:6px}
+#homePage .level-btn{padding:8px 6px;border-radius:12px}
+#homePage .home-footer{margin-top:0}
 .home-header{text-align:center;margin-bottom:10px}
 .home-header h1{font-size:32px;font-weight:800;letter-spacing:2px;color:#374151}
 .home-header h1 .title-icon{display:inline;font-style:normal}
@@ -66,6 +77,7 @@ body{
 .level-btn.hard .num{background:linear-gradient(135deg,#e53935,#ef5350);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .level-btn.expert .num{background:linear-gradient(135deg,#7b1fa2,#ab47bc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .level-btn.master .num{background:linear-gradient(135deg,#1a237e,#3949ab);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.level-btn.ultimate .num{background:linear-gradient(135deg,#4a0000,#8b0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .home-footer{text-align:center;font-size:11px;color:#c5cae9;margin-top:4px}
 
 /* ===== Game Page ===== */
@@ -106,6 +118,15 @@ body{
   -webkit-tap-highlight-color:transparent;user-select:none;
   border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;
 }
+/* Thick box borders via pseudo-elements to avoid corner miter overlap */
+.cell.box-right::after{
+  content:'';position:absolute;right:0;top:0;
+  width:2.5px;height:100%;background:#374151;pointer-events:none;
+}
+.cell.box-bottom::before{
+  content:'';position:absolute;bottom:0;left:0;
+  height:2.5px;width:100%;background:#374151;pointer-events:none;
+}
 .cell:active{background:#e8f0fe}
 .cell.fixed{font-weight:700;color:#111827;background:#f9fafb}
 .cell.editing{background:#dbeafe !important;font-weight:600}
@@ -138,6 +159,7 @@ body{
 }
 .action-btn:active{transform:scale(.94)}
 .action-btn.primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.action-btn.hint{background:linear-gradient(135deg,#f9a825,#ffd54f);color:#5d4037}
 .action-btn.success{background:linear-gradient(135deg,#43a047,#66bb6a);color:#fff}
 .action-btn.danger{background:linear-gradient(135deg,#e53935,#ef5350);color:#fff}
 
@@ -203,6 +225,7 @@ body{
     <button class="level-btn hard" data-level="2"><span class="num">★★★</span> 困难 <span class="diff">Hard</span><span class="grid-info">9×9 标准</span></button>
     <button class="level-btn expert" data-level="3"><span class="num">★★★★</span> 专家 <span class="diff">Expert</span><span class="grid-info">9×9 进阶</span></button>
     <button class="level-btn master" data-level="4"><span class="num">★★★★★</span> 大师 <span class="diff">Master</span><span class="grid-info">9×9 终极</span></button>
+    <button class="level-btn ultimate" data-level="5"><span class="num">💀</span> 骨灰 <span class="diff">Ultimate</span><span class="grid-info">9×9 炼狱</span></button>
   </div>
 
   <div class="home-footer">Sudoku — Toobey</div>
@@ -230,6 +253,7 @@ body{
 
   <div class="action-bar">
     <button class="action-btn" id="clearBtn">🧹 清除</button>
+    <button class="action-btn hint" id="hintBtn">💡 提示</button>
     <button class="action-btn" id="restartBtn">↺ 重来</button>
     <button class="action-btn success" id="checkBtn">✓ 完成验证</button>
     <button class="action-btn primary" id="homeBtn">🏠 主页</button>
@@ -281,10 +305,8 @@ const MusicEngine = {
   // Pentatonic ambient chord progression
   start(){
     if(!this.ctx)return;
-    if(this.playing)return;
     this.playing = true;
     const now = this.ctx.currentTime;
-    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
     // C major pentatonic: C D E G A
     const chords = [
       [261.63, 329.63, 392.00],  // CEG
@@ -307,10 +329,13 @@ const MusicEngine = {
     melody.forEach((freq, i)=>{
       this.playNote(freq, now + i*beat*0.75, beat*0.7, 0.35);
     });
-    // Schedule next loop
+    // Schedule next loop: reset playing then re-start to avoid re-entry guard
     this._timer = setTimeout(()=>{
-      if(this.playing) this.start();
-    }, (totalDuration-1)*1000);
+      if(this.playing){
+        this.playing = false;
+        this.start();
+      }
+    }, (totalDuration+0.5)*1000);
   },
   stop(){
     this.playing = false;
@@ -397,19 +422,19 @@ const PUZZLES = [
       [3,4,5,2,8,6,1,7,9]
     ]
   },
-  // ★★★★ Level 3: 9×9 - medium
+  // ★★★★ Level 3: 9×9 - medium (28 givens)
   {
     name:'专家', label:'Expert',
     gridSize:9, boxRows:3, boxCols:3,
     puzzle:[
-      [0,0,0,2,6,0,7,0,1],
-      [6,8,0,0,7,0,0,9,0],
-      [1,9,0,0,0,4,5,0,0],
-      [8,2,0,1,0,0,0,4,0],
-      [0,0,4,6,0,2,9,0,0],
-      [0,5,0,0,0,3,0,2,8],
-      [0,0,9,3,0,0,0,7,4],
-      [0,4,0,0,5,0,0,3,6],
+      [0,0,0,0,6,0,7,0,1],
+      [6,8,0,0,0,0,0,9,0],
+      [1,9,0,0,0,4,0,0,0],
+      [8,0,0,1,0,0,0,4,0],
+      [0,0,4,0,0,2,9,0,0],
+      [0,0,0,0,0,3,0,2,8],
+      [0,0,9,0,0,0,0,7,4],
+      [0,4,0,0,0,0,0,3,6],
       [7,0,3,0,1,8,0,0,0]
     ],
     solution:[
@@ -449,6 +474,33 @@ const PUZZLES = [
       [3,6,7,5,4,2,8,1,9],
       [9,8,4,7,6,1,2,3,5],
       [5,2,1,8,3,9,7,6,4]
+    ]
+  },
+  // 💀 Level 5: 9×9 Ultimate - World's Hardest Sudoku (Arto Inkala)
+  {
+    name:'骨灰', label:'Ultimate',
+    gridSize:9, boxRows:3, boxCols:3,
+    puzzle:[
+      [8,0,0,0,0,0,0,0,0],
+      [0,0,3,6,0,0,0,0,0],
+      [0,7,0,0,9,0,2,0,0],
+      [0,5,0,0,0,7,0,0,0],
+      [0,0,0,0,4,5,7,0,0],
+      [0,0,0,1,0,0,0,3,0],
+      [0,0,1,0,0,0,0,6,8],
+      [0,0,8,5,0,0,0,1,0],
+      [0,9,0,0,0,0,4,0,0]
+    ],
+    solution:[
+      [8,1,2,7,5,3,6,4,9],
+      [9,4,3,6,8,2,1,7,5],
+      [6,7,5,4,9,1,2,8,3],
+      [1,5,4,2,3,7,8,9,6],
+      [3,6,9,8,4,5,7,2,1],
+      [2,8,7,1,6,9,5,3,4],
+      [5,2,1,9,7,4,3,6,8],
+      [4,3,8,5,2,6,9,1,7],
+      [7,9,6,3,1,8,4,5,2]
     ]
   }
 ];
@@ -508,6 +560,36 @@ document.getElementById('restartBtn').addEventListener('click',()=>{
 
 document.getElementById('checkBtn').addEventListener('click',checkCompletion);
 
+// Hint button: auto-fill one empty cell
+document.getElementById('hintBtn').addEventListener('click',()=>{
+  if(isComplete)return;
+  const n=PUZZLES[currentLevel].gridSize;
+  const sol=PUZZLES[currentLevel].solution;
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if(board[r][c]===0){
+        board[r][c]=sol[r][c];
+        fixed[r][c]=true;
+        renderBoard();
+        renderHighlights();
+        // Flash the hinted cell
+        const cells=sudokuBoard.children;
+        const idx=r*n+c;
+        if(cells[idx]){
+          cells[idx].style.transition='background .3s';
+          cells[idx].style.background='#fff59d';
+          setTimeout(()=>{
+            cells[idx].style.background='';
+            cells[idx].style.transition='';
+          },800);
+        }
+        if(isBoardFull()&&isBoardCorrect()) completeLevel();
+        return; // only fill one cell
+      }
+    }
+  }
+});
+
 document.getElementById('nextLevelBtn').addEventListener('click',()=>{
   winModal.classList.remove('show');
   if(currentLevel<PUZZLES.length-1){
@@ -554,39 +636,14 @@ function buildBoard(n, boxRows, boxCols){
   if(n===4) maxW = 240;
   else if(n===6) maxW = 320;
   wrap.style.maxWidth = maxW+'px';
-  // Remove old dynamic styles
-  const oldStyle = document.getElementById('boardBorderStyle');
-  if(oldStyle) oldStyle.remove();
-  // Build border CSS
-  let css = '';
-  for(let r=1;r<=n;r++){
-    for(let c=1;c<=n;c++){
-      const idx = (r-1)*n + c;
-      const borders = [];
-      if(c % boxCols === 0 && c !== n) borders.push(`border-right:2.5px solid #374151`);
-      if(r % boxRows === 0 && r !== n) borders.push(`border-bottom:2.5px solid #374151`);
-      if(borders.length){
-        css += `.cell:nth-child(${idx}){${borders.join(';')}}\n`;
-      }
-    }
-  }
-  // Last column: remove right border so it doesn't stack with board border
-  for(let r=1;r<=n;r++){
-    css += `.cell:nth-child(${r*n}){border-right:none}\n`;
-  }
-  // Last row: remove bottom border so it doesn't stack with board border
-  for(let c=1;c<=n;c++){
-    css += `.cell:nth-child(${(n-1)*n+c}){border-bottom:none}\n`;
-  }
-  const style = document.createElement('style');
-  style.id='boardBorderStyle';
-  style.textContent=css;
-  document.head.appendChild(style);
 
   for(let r=0;r<n;r++){
     for(let c=0;c<n;c++){
       const cell=document.createElement('div');
       cell.className='cell';
+      // Add box border class via pseudo-element (avoids corner miter overlap)
+      if((c+1) % boxCols === 0 && c !== n-1) cell.classList.add('box-right');
+      if((r+1) % boxRows === 0 && r !== n-1) cell.classList.add('box-bottom');
       if(fixed[r][c])cell.classList.add('fixed');
       if(board[r][c]!==0)cell.textContent=board[r][c];
       cell.dataset.r=r;cell.dataset.c=c;
